@@ -30,9 +30,7 @@ import static org.jenkinsci.test.acceptance.Matchers.containsRegexp;
 import static org.jenkinsci.test.acceptance.Matchers.hasContent;
 import static org.jenkinsci.test.acceptance.Matchers.pageObjectDoesNotExist;
 import static org.jenkinsci.test.acceptance.Matchers.pageObjectExists;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class FreestyleJobTest extends AbstractJUnitTest {
 
@@ -184,17 +182,23 @@ public class FreestyleJobTest extends AbstractJUnitTest {
     }
 
     @Test
-    public void buildPermlinksExist() throws Exception {
+    public void buildPermlinks() throws Exception {
         FreeStyleJob j = jenkins.jobs.create(FreeStyleJob.class);
         j.configure();
         j.save();
 
-        Build b = j.scheduleBuild().waitUntilFinished();
+        Build b1 = j.scheduleBuild().shouldSucceed();
 
         j.configure();
         j.save();
 
         assertNotNull(driver.findElement(By.className("permalinks-header")));
+
+        assertEquals(j.getLastBuild(), b1);
+
+        assertNotNull(hasContent("Build #1"));
+
+        assertTrue(find(By.className("icon-blue")).getAttribute("tooltip").contains("Success"));
     }
 
 
