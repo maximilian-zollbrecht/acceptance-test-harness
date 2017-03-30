@@ -17,6 +17,7 @@ import org.junit.Test;
 import org.jvnet.hudson.test.Issue;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.WebElement;
 
 import java.net.URL;
 import java.util.Collections;
@@ -178,7 +179,8 @@ public class FreestyleJobTest extends AbstractJUnitTest {
         String description = "ein sinnloser Job...";
         j.description(description, false);
 
-        assertNotNull(hasContent(description));
+        WebElement actual = j.find(By.xpath("//div[@id='description']/div"));
+        assertThat(actual.getText(), containsString(description));
     }
 
     @Test
@@ -189,14 +191,15 @@ public class FreestyleJobTest extends AbstractJUnitTest {
 
         Build b1 = j.scheduleBuild().shouldSucceed();
 
-        j.configure();
-        j.save();
+        j.open();
 
+        assertNotNull(driver.findElement(By.partialLinkText("Last build (#1)")));
         assertNotNull(driver.findElement(By.className("permalinks-header")));
 
         assertEquals(j.getLastBuild(), b1);
 
         assertNotNull(hasContent("Build #1"));
+        assertNotNull(hasContent("No changes"));
 
         assertTrue(find(By.className("icon-blue")).getAttribute("tooltip").contains("Success"));
     }
